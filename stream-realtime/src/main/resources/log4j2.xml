@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF"> <!-- 关闭 Log4j2 自身的状态日志 -->
+    <Appenders>
+        <!-- 正确配置 NullAppender：无需 name 属性，直接声明 -->
+        <NullAppender/>
+    </Appenders>
+
+    <Loggers>
+        <!-- 根 Logger：所有日志都走 NullAppender（丢弃），级别设为 OFF -->
+        <Root level="OFF">
+            <AppenderRef ref="NullAppender"/> <!-- 引用内置的 NullAppender -->
+        </Root>
+
+        <!-- 可选：针对特定包（如 Flink）单独设置，确保覆盖所有日志 -->
+        <Logger name="org.apache.flink" level="OFF" additivity="false">
+            <AppenderRef ref="NullAppender"/>
+        </Logger>
+    </Loggers>
+</Configuration>

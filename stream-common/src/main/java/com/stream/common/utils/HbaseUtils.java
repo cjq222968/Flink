@@ -211,13 +211,40 @@ public class HbaseUtils {
         }
     }
 
+    /**
+     * 关闭HBase连接资源
+     * 释放Connection连接，避免资源泄漏
+     */
+    public void close() {
+        if (connection != null) {
+            try {
+                if (!connection.isClosed()) {
+                    connection.close();
+                    LOG.info("HBase connection has been closed successfully");
+                }
+            } catch (IOException e) {
+                LOG.error("Failed to close HBase connection", e);
+            }
+        }
+    }
+
     @SneakyThrows
     public static void main(String[] args) {
         System.setProperty("HADOOP_USER_NAME","root");
-        HbaseUtils hbaseUtils = new HbaseUtils("cdh01,cdh02,cdh03");
-//        hbaseUtils.dropHbaseNameSpace("GMALL_FLINK_2207");
-//        System.err.println(hbaseUtils.tableIsExists("realtime_v2:dim_user_info"));
-        hbaseUtils.deleteTable("ns_zxn:dim_base_category1");
-//        hbaseUtils.getHbaseNameSpaceAllTablesList("realtime_v2");
+        HbaseUtils hbaseUtils = null;
+        try {
+            hbaseUtils = new HbaseUtils("cdh01,cdh02,cdh03");
+            // 示例操作
+            // hbaseUtils.dropHbaseNameSpace("GMALL_FLINK_2207");
+            // System.err.println(hbaseUtils.tableIsExists("realtime_v2:dim_user_info"));
+            hbaseUtils.deleteTable("ns_zxn:dim_base_category1");
+            // hbaseUtils.getHbaseNameSpaceAllTablesList("realtime_v2");
+        } catch (Exception e) {
+            LOG.error("HBase operation failed", e);
+        } finally {
+            if (hbaseUtils != null) {
+                hbaseUtils.close();
+            }
+        }
     }
 }

@@ -113,9 +113,10 @@ public class DbusCdc2DimHbaseAnd2DbKafka {
         BroadcastStream<JSONObject> broadcastDs = tpDS.broadcast(mapStageDesc);
         BroadcastConnectedStream<JSONObject, JSONObject> connectDs = cdcDbMainStreamMap.connect(broadcastDs);
 
-        connectDs.process(new ProcessSpiltStreamToHBaseDimFunc(mapStageDesc));
+        connectDs.process(new ProcessSpiltStreamToHBaseDimFunc(mapStageDesc,CDH_HBASE_NAME_SPACE));
 
         env.disableOperatorChaining();
         env.execute();
     }
 }
+

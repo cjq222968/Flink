@@ -1,13 +1,15 @@
 package com.stream.utils;
 
 import com.stream.common.utils.ConfigUtils;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.table.catalog.hive.HiveCatalog;
 
 /**
  * @BelongsProject: dev-test
  * @BelongsPackage: com.stream.utils
  * @Author: cuijiangqi
- * @CreateTime: 2025-08-15  17:29
+ * @CreateTime: 2025-08-19  14:56
  * @Description: TODO
  * @Version: 1.0
  */

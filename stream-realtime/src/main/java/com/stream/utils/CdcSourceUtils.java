@@ -1,21 +1,23 @@
 package com.stream.utils;
 
-import java.util.Properties;
 import com.stream.common.utils.ConfigUtils;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
 
+import java.time.Duration;
+import java.util.Properties;
+
 /**
  * @BelongsProject: dev-test
  * @BelongsPackage: com.stream.utils
  * @Author: cuijiangqi
- * @CreateTime: 2025-08-15  19:23
+ * @CreateTime: 2025-08-19  14:54
  * @Description: TODO
  * @Version: 1.0
  */
 public class CdcSourceUtils {
-    public static MySqlSource<String> getMySQLCdcSource(String database,String table,String username,String pwd,String serverId,StartupOptions model){
+    public static MySqlSource<String> getMySQLCdcSource(String database,String table,String username,String pwd,StartupOptions model){
         Properties debeziumProperties = new Properties();
         debeziumProperties.setProperty("database.connectionCharset", "UTF-8");
         debeziumProperties.setProperty("decimal.handling.mode","string");
@@ -30,7 +32,6 @@ public class CdcSourceUtils {
                 .tableList(table)
                 .username(username)
                 .password(pwd)
-                .serverId(serverId)
                 .serverId("5403-5450")
 //                .connectionTimeZone(ConfigUtils.getString("mysql.timezone"))、
                 .deserializer(new JsonDebeziumDeserializationSchema())

@@ -1,8 +1,10 @@
 package com.stream.utils;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import com.alibaba.fastjson.JSONObject;
+import org.checkerframework.common.reflection.qual.GetClass;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -11,7 +13,7 @@ import java.util.Random;
  * @BelongsProject: dev-test
  * @BelongsPackage: com.stream.utils
  * @Author: cuijiangqi
- * @CreateTime: 2025-08-15  18:38
+ * @CreateTime: 2025-08-19  14:58
  * @Description: TODO
  * @Version: 1.0
  */

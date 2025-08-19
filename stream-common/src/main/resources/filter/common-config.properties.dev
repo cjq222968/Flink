@@ -33,7 +33,7 @@ kafka.cdc.db.topic=mysql_cdc_topic
 zookeeper.server.host.list=cdh01:2181,cdh02:2181,cdh03:2181
 
 # HBase 的命名空间，和代码里的 CDH_HBASE_NAME_SPACE 对应
-hbase.namespace=default
+hbase.namespace=realtime
 # HBase 集群地址（取决于你的 HBase 部署方式，比如用 Zookeeper 连接）
 hbase.zookeeper.quorum=cdh01:2181,cdh02:2181,cdh03:2181
 

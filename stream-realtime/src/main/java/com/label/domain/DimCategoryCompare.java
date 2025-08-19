@@ -20,4 +20,6 @@ public class DimCategoryCompare {
     private Integer id;
     private String categoryName;
     private String searchCategoryName;
+
+
 }

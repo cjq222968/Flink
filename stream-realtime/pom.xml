@@ -61,21 +61,55 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-
-        <!-- 阿里云仓库目前返回错误页面，建议临时移除或替换 -->
-        <!-- <repository>
-            <id>aliyunmaven</id>
-            <url>https://maven.aliyun.com/repository/public</url>
-        </repository> -->
-
-        <!-- Cloudera 仓库路径错误（400 Bad Request），不建议使用 -->
-        <!-- <repository>
-            <id>cloudera-repo</id>
-            <url>https://repository.cloudera.com/artifactory/cloudera-repos</url>
-        </repository> -->
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <!-- 排除 Hadoop 和 HBase 中的 slf4j-log4j12 统一处理日志依赖 -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>2.1.0-cdh6.3.2</version> <!-- 补充明确版本，原重复依赖未指定版本有隐患 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- 引入 Log4j2 的 SLF4J 实现 统一日志依赖 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+
         <!-- 公共模块 -->
         <dependency>
             <groupId>com.cjq</groupId>
@@ -200,12 +234,7 @@
             <version>${flink.version}</version>
         </dependency>
 
-        <!-- Hadoop -->
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-client</artifactId>
-            <version>${hadoop.version}</version>
-        </dependency>
+        <!-- Hadoop 相关 已精简重复的 hadoop-client 依赖 -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs-client</artifactId>
@@ -370,24 +399,26 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- 日志 -->
-        <dependency>
+        <!-- 日志依赖统一用 Log4j2 实现，移除冲突的 slf4j-log4j12  -->
+        <!-- 原 <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.7</version>
             <scope>provided</scope>
-        </dependency>
+        </dependency> 已删除 -->
+
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
             <version>2.0.3</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- 公共模块 -->
         <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-            <version>2.0.3</version>
-            <scope>compile</scope>
+            <groupId>com.cjq</groupId>
+            <artifactId>stream-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

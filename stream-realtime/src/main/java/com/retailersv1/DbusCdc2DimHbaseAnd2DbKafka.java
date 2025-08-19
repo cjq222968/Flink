@@ -45,7 +45,6 @@ public class DbusCdc2DimHbaseAnd2DbKafka {
                 "",
                 ConfigUtils.getString("mysql.user"),
                 ConfigUtils.getString("mysql.pwd"),
-                "2889-2990",
                 StartupOptions.initial()
         );
 
@@ -56,7 +55,6 @@ public class DbusCdc2DimHbaseAnd2DbKafka {
                 "realtime_v1_config.table_process_dim",
                 ConfigUtils.getString("mysql.user"),
                 ConfigUtils.getString("mysql.pwd"),
-                "5672-5884",
                 StartupOptions.initial()
         );
         //分别对应上面的两个cdc  你还想吃饭呢

@@ -45,6 +45,8 @@
 
     <dependencyManagement>
         <dependencies>
+
+
             <!-- Hadoop HDFS 客户端依赖（核心，解决 HdfsConfiguration 类缺失） -->
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>

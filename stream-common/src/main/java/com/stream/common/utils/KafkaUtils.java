@@ -3,7 +3,6 @@ package com.stream.common.utils;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
-
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.runtime.ValueSerializer;
 import org.apache.flink.connector.base.DeliveryGuarantee;
@@ -13,10 +12,10 @@ import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.util.serialization.JSONKeyValueDeserializationSchema;
+import org.apache.flink.util.Preconditions; // 新增：导入Preconditions
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
-
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
@@ -43,7 +42,6 @@ public final class KafkaUtils {
      * 构建基于字符串序列化的Kafka属性
      *
      * @param groupId 消费组ID
-     *
      */
     public static Properties buildPropsStringDeserializer(String groupId) {
         final Properties props = new Properties();
@@ -57,13 +55,13 @@ public final class KafkaUtils {
         return props;
     }
 
-    public static Properties getKafkaConsumerProperties(String server, String groupId, String offset){
+    public static Properties getKafkaConsumerProperties(String server, String groupId, String offset) {
         Properties prop = new Properties();
-        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,server);
-        prop.put(ConsumerConfig.GROUP_ID_CONFIG,groupId);
-        prop.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,offset);
+        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, server);
+        prop.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        prop.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offset);
         prop.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        prop.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class.getName());
+        prop.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         return prop;
     }
 
@@ -81,20 +79,20 @@ public final class KafkaUtils {
         return props;
     }
 
-    public static void sinkJson2KafkaMessage(String topicName, ArrayList<JSONObject> jsonObjectArrayList){
+    public static void sinkJson2KafkaMessage(String topicName, ArrayList<JSONObject> jsonObjectArrayList) {
         Properties properties = buildPropsByProducer();
-        try(KafkaProducer<String, String> producer = new KafkaProducer<>(properties)) {
+        try (KafkaProducer<String, String> producer = new KafkaProducer<>(properties)) {
             for (JSONObject jsonObject : jsonObjectArrayList) {
-                producer.send(new ProducerRecord<>(topicName,jsonObject.toString()));
+                producer.send(new ProducerRecord<>(topicName, jsonObject.toString()));
             }
             System.out.println("数据已成功发送到Kafka主题: " + topicName);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("发送数据到Kafka主题时出现错误");
         }
     }
 
-    public static KafkaSource<String> buildKafkaSource(String bootServerList,String kafkaTopic,String group,OffsetsInitializer offset){
+    public static KafkaSource<String> buildKafkaSource(String bootServerList, String kafkaTopic, String group, OffsetsInitializer offset) {
         return KafkaSource.<String>builder()
                 .setBootstrapServers(bootServerList)
                 .setTopics(kafkaTopic)
@@ -102,11 +100,11 @@ public final class KafkaUtils {
                 .setStartingOffsets(offset)
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 // 自动发现消费的partition变化
-                .setProperty("flink.partition-discovery.interval-millis",String.valueOf(10 * 1000))
+                .setProperty("flink.partition-discovery.interval-millis", String.valueOf(10 * 1000))
                 .build();
     }
 
-    public static KafkaSource<String> buildKafkaSecureSource(String bootServerList,String kafkaTopic,String group,OffsetsInitializer offset){
+    public static KafkaSource<String> buildKafkaSecureSource(String bootServerList, String kafkaTopic, String group, OffsetsInitializer offset) {
         return KafkaSource.<String>builder()
                 .setBootstrapServers(bootServerList)
                 .setTopics(kafkaTopic)
@@ -114,21 +112,29 @@ public final class KafkaUtils {
                 .setStartingOffsets(offset)
                 .setValueOnlyDeserializer(new SafeStringDeserializationSchema())
                 // 自动发现消费的partition变化
-                .setProperty("flink.partition-discovery.interval-millis",String.valueOf(10 * 1000))
+                .setProperty("flink.partition-discovery.interval-millis", String.valueOf(10 * 1000))
                 .build();
     }
 
-
-
+    /**
+     * 构建Kafka Sink，新增参数非空校验
+     *
+     * @param bootServerList Kafka集群地址
+     * @param kafkaTopic     目标主题名
+     * @return KafkaSink<String>
+     */
     public static KafkaSink<String> buildKafkaSink(String bootServerList, String kafkaTopic) {
+        // 新增参数非空校验，提前暴露配置问题
+        Preconditions.checkNotNull(bootServerList, "Kafka bootstrap servers cannot be null");
+        Preconditions.checkNotNull(kafkaTopic, "Kafka topic cannot be null");
+
         Properties producerProperties = new Properties();
         producerProperties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootServerList);
         producerProperties.setProperty(ProducerConfig.ACKS_CONFIG, "all");
         producerProperties.setProperty(ProducerConfig.RETRIES_CONFIG, String.valueOf(Integer.MAX_VALUE));
-        producerProperties.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG,"true");
+        producerProperties.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
         producerProperties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.ByteArraySerializer.class.getName());
         producerProperties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.ByteArraySerializer.class.getName());
-
 
         System.out.println("Kafka Producer配置参数：");
         producerProperties.forEach((key, value) -> System.out.println(key + " = " + value));
@@ -144,7 +150,6 @@ public final class KafkaUtils {
                 .setKafkaProducerConfig(producerProperties)
                 .build();
     }
-
 
     public static class SafeStringDeserializationSchema implements DeserializationSchema<String> {
 
@@ -188,31 +193,31 @@ public final class KafkaUtils {
         }
     }
 
-    public static boolean delTopic(String bootStrapServer,String kafkaTopicName){
-        if (kafkaTopicExists(bootStrapServer,kafkaTopicName)){
+    public static boolean delTopic(String bootStrapServer, String kafkaTopicName) {
+        if (kafkaTopicExists(bootStrapServer, kafkaTopicName)) {
             Properties properties = new Properties();
-            properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,bootStrapServer);
-            try{
+            properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServer);
+            try {
                 AdminClient adminClient = AdminClient.create(properties);
                 adminClient.deleteTopics(Collections.singleton(kafkaTopicName)).all().get();
                 Thread.sleep(2000);
-                logger.warn("del kafka topic -> {}",kafkaTopicName);
-                return !kafkaTopicExists(bootStrapServer,kafkaTopicName);
+                logger.warn("del kafka topic -> {}", kafkaTopicName);
+                return !kafkaTopicExists(bootStrapServer, kafkaTopicName);
             } catch (ExecutionException | InterruptedException e) {
                 logger.error("删除Kafka主题失败，topic={}", kafkaTopicName, e);
                 throw new RuntimeException(e);
             }
         }
-        logger.warn("kafka topic is not exist {}",kafkaTopicName);
+        logger.warn("kafka topic is not exist {}", kafkaTopicName);
         return false;
     }
 
-    public static void createKafkaTopic(String bootstrapServers, String topicName, int partitions, short replicationFactor, boolean recreateIfExists){
+    public static void createKafkaTopic(String bootstrapServers, String topicName, int partitions, short replicationFactor, boolean recreateIfExists) {
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        try(AdminClient adminClient = AdminClient.create(props)) {
+        try (AdminClient adminClient = AdminClient.create(props)) {
             boolean topicExists = kafkaTopicExists(bootstrapServers, topicName);
-            if (topicExists && recreateIfExists){
+            if (topicExists && recreateIfExists) {
                 logger.info("主题 {} 已存在，开始删除...", topicName);
                 boolean deleteSuccess = delTopic(bootstrapServers, topicName);
                 if (!deleteSuccess) {
@@ -221,7 +226,7 @@ public final class KafkaUtils {
                 Thread.sleep(2000);
             }
 
-            if (!kafkaTopicExists(bootstrapServers, topicName)){
+            if (!kafkaTopicExists(bootstrapServers, topicName)) {
                 logger.info("开始创建主题 {}，分区数：{}，副本数：{}", topicName, partitions, replicationFactor);
                 NewTopic newTopic = new NewTopic(topicName, partitions, replicationFactor);
                 adminClient.createTopics(Collections.singleton(newTopic)).all().get();
@@ -230,7 +235,7 @@ public final class KafkaUtils {
                 } else {
                     logger.error("主题 {} 创建失败，验证不存在", topicName);
                 }
-            }else {
+            } else {
                 logger.info("主题 {} 已存在，且无需删除，直接返回", topicName);
             }
 
@@ -239,11 +244,9 @@ public final class KafkaUtils {
         }
     }
 
-
-
     public static void main(String[] args) {
 //        System.err.println(delTopic("cdh01:9092,cdh02:9092,cdh03:9092", "realtime_v2_action_log"));
-        createKafkaTopic("cdh01:9092,cdh02:9092,cdh03:9092","realtime_v2_action_log",6, (short) 1,
+        createKafkaTopic("cdh01:9092,cdh02:9092,cdh03:9092", "realtime_v2_action_log", 6, (short) 1,
                 kafkaTopicExists("cdh01:9092,cdh02:9092,cdh03:9092", "realtime_v2_action_log"));
 //        System.err.println(kafkaTopicExists("cdh01:9092,cdh02:9092,cdh03:9092", "realtime_v2_action_log"));
     }

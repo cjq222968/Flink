@@ -68,6 +68,12 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>2.0.0</version> <!-- 可以根据需要选择合适的版本 -->
+        </dependency>
+
         <!-- 排除 Hadoop 和 HBase 中的 slf4j-log4j12 统一处理日志依赖 -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>

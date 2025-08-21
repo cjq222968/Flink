@@ -13,7 +13,6 @@ import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.datastream.*;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -26,8 +25,7 @@ import java.util.HashMap;
 
 /**
  * @BelongsProject: dev-test
- * @BelongsPackage: com.retailersv1
- * @Author: cuijiangqi
+ * @BelongsPackage: com.retailers1
  * @CreateTime: 2025-08-15  18:58
  * @Description: TODO
  * @Version: 1.0
@@ -68,7 +66,6 @@ public class DbusLogDataProcess2Kafka {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         EnvironmentSettingUtils.defaultParameter(env);
-        env.setStateBackend(new MemoryStateBackend());
 
 
         DataStreamSource<String> kafkaSourceDs = env.fromSource(
@@ -83,33 +80,22 @@ public class DbusLogDataProcess2Kafka {
         );
 
 
-//        SingleOutputStreamOperator<JSONObject> processDS = kafkaSourceDs.process(new ProcessFunction<String, JSONObject>() {
-//            @Override
-//            public void processElement(String s, ProcessFunction<String, JSONObject>.Context context, Collector<JSONObject> collector) {
-//                try {
-//                    collector.collect(JSONObject.parseObject(s));
-//                } catch (Exception e) {
-//                    context.output(dirtyTag, s);
-//                    System.err.println("Convert JsonData Error !");
-//                }
-//            }
-//        }).uid("convert_json_process")
-//          .name("convert_json_process");
+
 
         SingleOutputStreamOperator<JSONObject> processDS = kafkaSourceDs.process(new ProcessFunction<String, JSONObject>() {
-            @Override
-            public void processElement(String s, ProcessFunction<String, JSONObject>.Context context, Collector<JSONObject> collector) {
-                try {
-                    collector.collect(JSONObject.parseObject(s));
-                } catch (Exception e) {
-                    context.output(dirtyTag, s);
-                    //System.err.println("Convert JsonData Error ! Data: " + s + " Exception: " + e.getMessage());
-                    // 可选: 记录完整的堆栈跟踪
-                    // e.printStackTrace();
-                }
-            }
-        }).uid("convert_json_process")
-          .name("convert_json_process");
+                    @Override
+                    public void processElement(String s, ProcessFunction<String, JSONObject>.Context context, Collector<JSONObject> collector) {
+                        try {
+                            collector.collect(JSONObject.parseObject(s));
+                        } catch (Exception e) {
+                            context.output(dirtyTag, s);
+                            //System.err.println("Convert JsonData Error ! Data: " + s + " Exception: " + e.getMessage());
+                            // 可选: 记录完整的堆栈跟踪
+                            // e.printStackTrace();
+                        }
+                    }
+                }).uid("convert_json_process")
+                .name("convert_json_process");
 
 
         SideOutputDataStream<String> dirtyDS = processDS.getSideOutput(dirtyTag);

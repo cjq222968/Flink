@@ -1,148 +1,100 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.cjq</groupId>
-        <artifactId>dev-test</artifactId>
+        <groupId>org.example</groupId>
+        <artifactId>new-steam</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>stream-common</artifactId>
-
     <properties>
-        <!-- 核心修改：将JDK版本从8改为17 -->
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <java.version>17</java.version>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- 新增JDK 17模块化支持参数 -->
-        <maven.compiler.release>17</maven.compiler.release>
     </properties>
-
     <repositories>
         <repository>
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
         </repository>
     </repositories>
-
     <dependencies>
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.10</version>
         </dependency>
-
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-statebackend-rocksdb</artifactId>
         </dependency>
-
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>3.6.3</version>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-hbase-2.2</artifactId>
-            <version>1.17.1</version>
+            <artifactId>flink-hbase_2.11</artifactId>
         </dependency>
-
-        <!-- HBase Client（可选，如果你需要直接操作 HBase） -->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.hadoop</groupId>-->
-<!--            <artifactId>hadoop-hbase</artifactId>-->
-<!--            <version>3.0.0-cdh6.3.2</version>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-kafka</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>4.0.3</version>
         </dependency>
-
-        <!-- 打包时不进行打包 -->
+        <!--         打包时不进行打包 -->
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-client</artifactId>
             <version>2.4.7</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
             <version>${hadoop.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-common</artifactId>
-            <version>2.4.7</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-common</artifactId>
-            <version>2.4.7</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
-
     <profiles>
         <profile>
             <id>dev</id>
@@ -158,7 +110,6 @@
                 </filters>
             </build>
         </profile>
-
         <profile>
             <id>stage</id>
             <properties>
@@ -170,7 +121,6 @@
                 </filters>
             </build>
         </profile>
-
         <profile>
             <id>prod</id>
             <build>
@@ -183,10 +133,8 @@
             </properties>
         </profile>
     </profiles>
-
     <build>
         <plugins>
-            <!-- 资源插件保持不变 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -194,6 +142,7 @@
                 <executions>
                     <execution>
                         <id>copy-conf</id>
+                        <!-- default生命周期的哪个阶段 -->
                         <phase>process-resources</phase>
                         <goals>
                             <goal>resources</goal>
@@ -201,56 +150,29 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- 升级编译插件以支持JDK 17 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-<!--                    <compilerArgs>-->
-<!--                        &lt;!&ndash; 解决JDK 17的反射访问限制问题 &ndash;&gt;-->
-<!--                        <arg>&#45;&#45;add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>-->
-<!--                        <arg>&#45;&#45;add-opens=java.base/java.lang=ALL-UNNAMED</arg>-->
-<!--                    </compilerArgs>-->
-                </configuration>
-            </plugin>
-
-            <!-- 打包插件保持不变，增加JDK 17兼容性参数 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.4.2</version> <!-- 升级版本以支持JDK 17 -->
+                <version>2.4</version>
                 <configuration>
+                    <!--  设置false后是去掉 xxx-jar-with-dependencies.jar 后的 “-jar-with-dependencies”  -->
+                    <!--                     <appendAssemblyId>false</appendAssemblyId> -->
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass></mainClass>
-                        </manifest>
-                        <manifestEntries>
-                            <!-- 添加JDK 17运行时参数 -->
-                            <Multi-Release>true</Multi-Release>
-                        </manifestEntries>
-                    </archive>
                 </configuration>
                 <executions>
                     <execution>
                         <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal> <!-- 使用single替代assembly，适配新版本插件 -->
+                            <goal>assembly</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
-
-        <!-- 资源配置保持不变 -->
+        <!-- 负责处理项目资源文件并拷贝到输出目录 -->
         <resources>
             <resource>
                 <directory>src/main/resources/</directory>
@@ -262,11 +184,11 @@
                     <include>**/*.properties</include>
                     <include>**/*.xml</include>
                 </includes>
+                <!--  排除标签  -->
                 <excludes>
                     <exclude>filter/*</exclude>
                 </excludes>
             </resource>
         </resources>
     </build>
-
 </project>

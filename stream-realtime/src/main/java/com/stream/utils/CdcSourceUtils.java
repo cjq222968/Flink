@@ -14,7 +14,7 @@ import java.util.Properties;
  * @Author: cuijiangqi
  * @CreateTime: 2025-08-19  14:54
  * @Description: TODO
- * @Version: 1.0
+ * @Version: 1.0   这里少东西，这里只有五个，那里你要添加6个肯定会报错啊明白了
  */
 public class CdcSourceUtils {
     public static MySqlSource<String> getMySQLCdcSource(String database,String table,String username,String pwd,StartupOptions model){

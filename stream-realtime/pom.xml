@@ -1,451 +1,276 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.cjq</groupId>
-        <artifactId>dev-test</artifactId>
+        <groupId>org.example</groupId>
+        <artifactId>new-steam</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>stream-realtime</artifactId>
-
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- 统一版本 -->
-        <flink.version>1.17.1</flink.version>
-        <hadoop.version>3.0.0-cdh6.3.2</hadoop.version>
-        <jackson.version>2.15.3</jackson.version>
-        <hive.version>2.1.1</hive.version>
-        <hive.cdh.version>2.1.1-cdh6.3.2</hive.cdh.version>
-        <mysql.connector.version>8.0.33</mysql.connector.version>
-        <fastjson.version>1.2.83</fastjson.version>
-        <hutool.version>5.8.20</hutool.version>
-        <commons.cli.version>1.5.0</commons.cli.version>
-        <lombok.version>1.18.24</lombok.version>
-        <guava.version>31.1-jre</guava.version>
-        <sensitive.word.version>0.25.0</sensitive.word.version>
-        <paimon.version>1.0.1</paimon.version>
-        <minio.version>8.5.14</minio.version>
-        <flink.cdc.mysql.version>2.4.2</flink.cdc.mysql.version>
-        <flink.cdc.postgres.version>2.4.2</flink.cdc.postgres.version>
-        <flink.cdc.sqlserver.version>3.0.0</flink.cdc.sqlserver.version>
-        <flink.connector.jdbc.version>3.1.1-1.17</flink.connector.jdbc.version>
-        <hologres.connector.version>1.4.2</hologres.connector.version>
-        <doris.connector.version>1.5.0</doris.connector.version>
     </properties>
-
-    <!-- 修复仓库：部分仓库不可用 -->
-    <repositories>
-        <!-- 推荐使用官方镜像或稳定源 -->
-        <repository>
-            <id>central</id>
-            <url>https://repo1.maven.org/maven2/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-
-        <!-- 华为云镜像可用 -->
-        <repository>
-            <id>huaweicloud</id>
-            <url>https://mirrors.huaweicloud.com/repository/maven/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>cloudera</id>
-            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
-        </repository>
-    </repositories>
-
+    <!--     <repositories> -->
+    <!--         <repository> -->
+    <!--             <id>cloudera</id> -->
+    <!--             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url> -->
+    <!--         </repository> -->
+    <!--     </repositories> -->
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-nop</artifactId>
-            <version>2.0.0</version> <!-- 可以根据需要选择合适的版本 -->
+            <groupId>org.example</groupId>
+            <artifactId>stream-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
-
-        <!-- 排除 Hadoop 和 HBase 中的 slf4j-log4j12 统一处理日志依赖 -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs-client</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
             <version>${hadoop.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
+            <scope>provided</scope>
         </dependency>
-
+        <!--         flink 流批开发依赖包 -->
         <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-client</artifactId>
-            <version>2.1.0-cdh6.3.2</version> <!-- 补充明确版本，原重复依赖未指定版本有隐患 -->
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-clients</artifactId>
         </dependency>
-
-        <!-- 引入 Log4j2 的 SLF4J 实现 统一日志依赖 -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.17.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.17.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.17.2</version>
-        </dependency>
-
-        <!-- 公共模块 -->
-        <dependency>
-            <groupId>com.cjq</groupId>
-            <artifactId>stream-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <!-- Flink Core -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-java</artifactId>
-            <version>${flink.version}</version>
+            <version>1.17.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-sql-connector-hive-2.3.9_2.12</artifactId>
+            <version>1.17.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java</artifactId>
-            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-clients</artifactId>
-            <version>${flink.version}</version>
+            <artifactId>flink-connector-hive_2.12</artifactId>
+            <version>1.17.1</version>
         </dependency>
-
-        <!-- Table API & SQL -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.7</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.33</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-jdbc</artifactId>
+            <version>2.1.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-exec</artifactId>
+            <version>2.1.1-cdh6.3.2</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+        <!--         kafka 依赖 -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java</artifactId>
-            <version>${flink.version}</version>
+            <artifactId>flink-connector-kafka</artifactId>
+            <!--             <scope>provided</scope> -->
+        </dependency>
+        <!--         flink RocksDB 依赖 -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-statebackend-rocksdb</artifactId>
+        </dependency>
+        <!--         flink table 依赖环境 -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-runtime</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-planner-loader</artifactId>
-            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-common</artifactId>
             <version>${flink.version}</version>
         </dependency>
+        <!--         Table API 依赖 -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-api-java</artifactId>
+        </dependency>
+        <!--         Table API + DataStream 相互集成  -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-api-java-bridge</artifactId>
-            <version>${flink.version}</version>
         </dependency>
+        <!--         Flink 解析JSON -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-json</artifactId>
-            <version>${flink.version}</version>
         </dependency>
-
-        <!-- Connectors -->
-        <!-- Kafka -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <!-- MySQL CDC (Ververica) -->
+        <!--         Flink CDC MySQL connector -->
         <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-mysql-cdc</artifactId>
-            <version>${flink.cdc.mysql.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka-clients</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-
-        <!-- PostgreSQL CDC -->
+        <!--         Flink CDC Pg connector -->
+        <!--         <dependency> -->
+        <!--             <groupId>org.apache.flink</groupId> -->
+        <!--             <artifactId>flink-connector-postgres-cdc</artifactId> -->
+        <!--             <version>3.4.0</version> -->
+        <!--         </dependency> -->
         <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-postgres-cdc</artifactId>
-            <version>${flink.cdc.postgres.version}</version>
+            <version>2.4.2</version>
+            <!--             <scope>provided</scope> -->
         </dependency>
-
-        <!-- SQL Server CDC -->
+        <!--         Flink CDC SqlServer connector -->
         <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-sqlserver-cdc</artifactId>
-            <version>${flink.cdc.sqlserver.version}</version>
+            <version>3.0.0</version>
         </dependency>
-
-        <!-- JDBC -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+        <!--  Flink 流批一体 Stream 写入HDFS 并指定ORC的存储格式 -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-jdbc</artifactId>
-            <version>${flink.connector.jdbc.version}</version>
-        </dependency>
-
-        <!-- HBase -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-hbase-2.2</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <!-- Hive -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-sql-connector-hive-2.3.9_2.12</artifactId>
-            <version>${flink.version}</version>
+            <artifactId>flink-orc</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-hive_2.12</artifactId>
-            <version>${flink.version}</version>
+            <groupId>com.alibaba.hologres</groupId>
+            <artifactId>hologres-connector-flink-1.17</artifactId>
+            <version>1.4.2</version>
+            <scope>provided</scope>
+            <classifier>jar-with-dependencies</classifier>
         </dependency>
-
-        <!-- Hadoop 相关 已精简重复的 hadoop-client 依赖 -->
         <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-hdfs-client</artifactId>
-            <version>${hadoop.version}</version>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.doris</groupId>
+            <artifactId>flink-doris-connector-1.17</artifactId>
+            <version>1.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <version>${hadoop.version}</version>
+            <!--             <scope>provided</scope> -->
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-hbase-2.2</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-jdbc</artifactId>
+            <version>3.1.1-1.17</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-hbase-2.2</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+        <!--         敏感词检测 -->
+        <dependency>
+            <groupId>com.github.houbb</groupId>
+            <artifactId>sensitive-word</artifactId>
+            <version>0.25.0</version>
+        </dependency>
+        <!--  https://mvnrepository.com/artifact/org.apache.paimon/paimon-flink-1.17  -->
+        <dependency>
+            <groupId>org.apache.paimon</groupId>
+            <artifactId>paimon-flink-1.17</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <!--  https://mvnrepository.com/artifact/org.apache.paimon/paimon-s3  -->
+        <dependency>
+            <groupId>org.apache.paimon</groupId>
+            <artifactId>paimon-s3</artifactId>
+            <version>1.0.1</version>
+            <!--             <scope>test</scope> -->
+        </dependency>
+        <!--  https://mvnrepository.com/artifact/org.apache.paimon/paimon-flink-common  -->
+        <dependency>
+            <groupId>org.apache.paimon</groupId>
+            <artifactId>paimon-flink-common</artifactId>
+            <version>1.0.1</version>
+            <!--             <scope>test</scope> -->
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-aws</artifactId>
-            <version>${hadoop.version}</version>
+            <version>3.0.0-cdh6.3.2</version>
         </dependency>
-
-        <!-- S3 Support -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.14</version>
+        </dependency>
+        <!--  https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-bundle  -->
+        <!--         <dependency> -->
+        <!--             <groupId>com.amazonaws</groupId> -->
+        <!--             <artifactId>aws-java-sdk-bundle</artifactId> -->
+        <!--             <version>1.11.375</version> -->
+        <!--         </dependency> -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-s3-fs-hadoop</artifactId>
             <version>${flink.version}</version>
+            <!--             <scope>provided</scope> -->
         </dependency>
-
-        <!-- State Backend -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-statebackend-rocksdb</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <!-- Formats -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-orc</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <!-- Paimon -->
-        <dependency>
-            <groupId>org.apache.paimon</groupId>
-            <artifactId>paimon-flink-1.17</artifactId>
-            <version>${paimon.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.paimon</groupId>
-            <artifactId>paimon-s3</artifactId>
-            <version>${paimon.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.paimon</groupId>
-            <artifactId>paimon-flink-common</artifactId>
-            <version>${paimon.version}</version>
-        </dependency>
-
-        <!-- Third-party Libraries -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${fastjson.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>${hutool.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-cli</groupId>
-            <artifactId>commons-cli</artifactId>
-            <version>${commons.cli.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.houbb</groupId>
-            <artifactId>sensitive-word</artifactId>
-            <version>${sensitive.word.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.minio</groupId>
-            <artifactId>minio</artifactId>
-            <version>${minio.version}</version>
-        </dependency>
-
-        <!-- Database Drivers -->
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>${mysql.connector.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-jdbc</artifactId>
-            <version>${hive.version}</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>jdk.tools</groupId>
-                    <artifactId>jdk.tools</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-exec</artifactId>
-            <version>${hive.cdh.version}</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-slf4j-impl</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- External Connectors -->
-        <dependency>
-            <groupId>com.alibaba.hologres</groupId>
-            <artifactId>hologres-connector-flink-1.17</artifactId>
-            <version>${hologres.connector.version}</version>
-            <scope>provided</scope>
-            <classifier>jar-with-dependencies</classifier>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.doris</groupId>
-            <artifactId>flink-doris-connector-1.17</artifactId>
-            <version>${doris.connector.version}</version>
-        </dependency>
-
-        <!-- Jackson (统一版本) -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- 日志依赖统一用 Log4j2 实现，移除冲突的 slf4j-log4j12  -->
-        <!-- 原 <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.7</version>
-            <scope>provided</scope>
-        </dependency> 已删除 -->
-
-        <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-            <version>2.0.3</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- 公共模块 -->
-        <dependency>
-            <groupId>com.cjq</groupId>
-            <artifactId>stream-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
+        <!--         <dependency> -->
+        <!--             <groupId>org.example</groupId> -->
+        <!--             <artifactId>data-encryption</artifactId> -->
+        <!--             <version>1.0-RELEASE</version> -->
+        <!--         </dependency> -->
     </dependencies>
-
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <targetPath>./</targetPath>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*.conf</include>
-                    <include>**/*.csv</include>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                </includes>
-                <excludes>
-                    <exclude>filter/*</exclude>
-                </excludes>
-            </resource>
-        </resources>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -454,6 +279,7 @@
                 <executions>
                     <execution>
                         <id>copy-conf</id>
+                        <!-- default生命周期的哪个阶段 -->
                         <phase>process-resources</phase>
                         <goals>
                             <goal>resources</goal>
@@ -461,12 +287,13 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
+                    <!--  设置false后是去掉 xxx-jar-with-dependencies.jar 后的 “-jar-with-dependencies”  -->
+                    <!--                     <appendAssemblyId>false</appendAssemblyId> -->
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
@@ -476,11 +303,29 @@
                         <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>assembly</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
+        <!-- 负责处理项目资源文件并拷贝到输出目录 -->
+        <resources>
+            <resource>
+                <directory>src/main/resources/</directory>
+                <targetPath>./</targetPath>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.conf</include>
+                    <include>**/*.csv</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <!--  排除标签  -->
+                <excludes>
+                    <exclude>filter/*</exclude>
+                </excludes>
+            </resource>
+        </resources>
     </build>
 </project>
